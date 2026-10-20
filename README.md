@@ -60,3 +60,7 @@ Keep the Gemini key only in the backend project's Vercel environment settings. N
 ## Institute branding
 
 The navigation, homepage, institute logo, WhatsApp contact, footer links, and contact information follow [Skill Craft Institute](https://www.skillcraftinstitute.com/). The recommendations use the institute's approved digital courses; traditional academic track recommendations remain available in the assessment report.
+
+
+### Vercel Hobby deployment
+For Git-connected deployments on a Hobby team, the commit author must have deployment access to that Vercel project. Link the same GitHub account that authored the commit to Vercel; making the repository public does not change commit authorship.
