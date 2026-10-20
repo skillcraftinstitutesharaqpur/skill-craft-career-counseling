@@ -34,15 +34,28 @@ npm run dev
 
 Open the local URL Vite prints (usually `http://localhost:5173`). The frontend uses `http://127.0.0.1:8000` for the local API unless `VITE_API_BASE_URL` is set.
 
-## Production deployment
+## Vercel deployment
 
-GitHub stores the source code; GitHub Pages serves static files and cannot run this app's Python API. Deploy the FastAPI backend and the Vite frontend to hosting that supports each runtime, then configure:
+Deploy the frontend and backend as two Vercel projects from this same GitHub repository. Both projects should deploy from the `main` branch.
 
-- Backend secret: `GEMINI_API_KEY`
-- Backend allowed site origins: `FRONTEND_ORIGINS=https://your-frontend-domain`
-- Frontend build variable: `VITE_API_BASE_URL=https://your-backend-domain`
+### Backend project
 
-Keep the Gemini key on the backend. Do not put it in a `VITE_` variable or commit a `.env` file. Add deployed domains to the variables before launching the hosted app.
+- Root Directory: `backend`
+- Framework: Vercel should detect FastAPI from `requirements.txt` and `pyproject.toml`
+- Entry point: `app.main:app` (configured in `backend/pyproject.toml`)
+- Add environment variables in Vercel Project Settings:
+  - `GEMINI_API_KEY`: a newly rotated Gemini key
+  - `FRONTEND_ORIGINS`: the exact deployed frontend origin, for example `https://your-frontend.vercel.app`
+
+### Frontend project
+
+- Root Directory: `frontend`
+- Framework preset: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+- Add environment variable `VITE_API_BASE_URL` with the deployed backend origin, for example `https://your-backend.vercel.app`.
+
+Keep the Gemini key only in the backend project's Vercel environment settings. Never put it in a `VITE_` variable or commit a `.env` file. Redeploy the frontend after setting its backend URL and redeploy the backend after setting its environment variables.
 
 ## Institute branding
 
