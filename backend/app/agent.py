@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -7,6 +8,8 @@ from pydantic import BaseModel, Field
 from typing import Literal
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 ACADEMIC_TRACKS = (
     "FSc Pre-Medical",
@@ -60,6 +63,55 @@ class CareerRoadmap(BaseModel):
     action_plan: list[str] = Field(min_length=1)
 
 class GeminiCounselor:
+    @staticmethod
+    def _fallback_roadmap(interest_code: str, education_level: str, response_language: str) -> dict:
+        """Return a useful local recommendation when Gemini is unavailable."""
+        course_by_interest = {
+            "R": "Python Development",
+            "I": "Data Science and Analytics",
+            "A": "Advanced Graphic Designing & AI",
+            "S": "Spoken English/ IELTS Preparation",
+            "E": "Digital Marketing & AI",
+            "C": "Office Management",
+        }
+        course = next((course_by_interest[letter] for letter in interest_code if letter in course_by_interest), DIGITAL_COURSES[0])
+        academic = {
+            "R": "FSc Pre-Engineering",
+            "I": "FSc Pre-Engineering",
+            "A": "F.A",
+            "S": "F.A",
+            "E": "I.COM (English Medium)",
+            "C": "I.COM (English Medium)",
+        }
+        academic_track = next((academic[letter] for letter in interest_code if letter in academic), "ICS")
+
+        if response_language == "Roman Urdu":
+            summary = f"Aap ke jawab {interest_code} interest pattern ko dikhate hain. Yeh sirf ibtidai rehnumai hai; apni dilchaspi aur salahiyat ko bhi madde nazar rakhein."
+            reason = f"{interest_code} pattern ko dekhte hue {academic_track} aur {course} aik munasib ibtidai combination ho sakta hai. Apne marks, dastiyab subjects, aur institute ke admission criteria se is mashwaray ki tasdeeq zaroor karein."
+            steps = [
+                f"{academic_track} ke subjects aur admission requirements apne college se confirm karein.",
+                f"{course} ke course outline aur practical projects Skill Craft Institute se maloom karein.",
+                "Rozana chhota study schedule banayein, practice ka record rakhein, aur counselor se apne options discuss karein.",
+            ]
+        else:
+            summary = f"Your answers show a {interest_code} interest pattern. This is an initial guide; consider your own interests and strengths as well."
+            reason = f"Based on the {interest_code} pattern, {academic_track} and {course} may be a suitable starting combination. Confirm subject availability, your marks, and admission requirements with your college and institute."
+            steps = [
+                f"Confirm {academic_track} subjects and admission requirements with your college.",
+                f"Ask Skill Craft Institute for the {course} course outline and practical projects.",
+                "Set a short daily study schedule, track your practice, and discuss your options with a counselor.",
+            ]
+
+        return {
+            "interest_code": interest_code,
+            "personality_summary": summary,
+            "academic_track": academic_track,
+            "digital_skill_track": course,
+            "why_this_combination": reason,
+            "action_plan": steps,
+            "is_fallback": True,
+        }
+
     def generate_roadmap(self, interest_code: str, education_level: str, response_language: str = "English") -> dict:
         prompt = f"""
         You are the "Career Architect AI", an expert psychometric counselor specializing in the Pakistani education system (BISE) and global digital economy trends.
@@ -92,21 +144,21 @@ class GeminiCounselor:
         """
 
         # google-genai native structured JSON configuration
-        if not os.getenv("GEMINI_API_KEY"):
-            raise RuntimeError("GEMINI_API_KEY is not configured. Add it to backend/.env.")
-
-        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        response = client.models.generate_content(
-            model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=CareerRoadmap,
-                temperature=0.3
-            ),
-        )
-        
         try:
+            api_key = os.getenv("GEMINI_API_KEY")
+            if not api_key:
+                raise RuntimeError("GEMINI_API_KEY is not configured")
+
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=CareerRoadmap,
+                    temperature=0.3
+                ),
+            )
             # Clean string return response ko dictionary mein convert karne ke liye
             if not response.text:
                 raise ValueError("Gemini returned an empty response")
@@ -114,7 +166,9 @@ class GeminiCounselor:
             if roadmap.interest_code != interest_code:
                 raise ValueError("Gemini response interest_code did not match the calculated code")
             return roadmap.model_dump()
-        except Exception as e:
-            raise Exception(f"Failed to parse Gemini response: {str(e)} | Raw text: {response.text}")
+        except Exception as exc:
+            # Do not log or return the API key, request headers, or raw provider body.
+            logger.warning("Gemini roadmap generation failed (%s); using local fallback", type(exc).__name__)
+            return self._fallback_roadmap(interest_code, education_level, response_language)
 
 counselor_agent = GeminiCounselor()

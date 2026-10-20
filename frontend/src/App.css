@@ -156,6 +156,8 @@
 .brand-app .from-indigo-900 { --tw-gradient-from: #06264a var(--tw-gradient-from-position) !important; --tw-gradient-to: rgb(6 38 74 / 0) var(--tw-gradient-to-position) !important; }
 .brand-app .to-indigo-800 { --tw-gradient-to: #0b345d var(--tw-gradient-to-position) !important; }
 
+.report-fallback-notice { margin: 0 0 14px; padding: 12px 16px; border-left: 4px solid #c89b25; border-radius: 8px; color: #173554; background: #fff8e5; font-size: 14px; line-height: 1.5; }
+
 .preferences-backdrop { position: fixed; z-index: 1000; inset: 0; padding: 20px; display: grid; place-items: center; overflow-y: auto; background: rgba(2, 17, 35, .72); backdrop-filter: blur(7px); }
 .preferences-dialog { width: min(100%, 510px); padding: clamp(24px, 5vw, 38px); display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(225, 195, 105, .55); border-radius: 20px; background: #fff; box-shadow: 0 28px 90px rgba(0, 0, 0, .3); }
 .preferences-dialog .eyebrow { margin-bottom: 3px; }

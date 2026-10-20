@@ -123,6 +123,7 @@ const COPY = {
     english: 'English', romanUrdu: 'Urdu', other: 'Other', otherPlaceholder: 'Enter your qualification', continue: 'Continue', cancel: 'Cancel',
     chooseBoth: 'Please select your qualification and language to continue.', otherRequired: 'Please enter your qualification.',
     consultationError: 'Career report could not be generated. Please try again or contact Skill Craft Institute.',
+    fallbackNotice: 'Gemini is temporarily unavailable, so this report uses local guidance based on your answers.',
     reportEyebrow: 'YOUR PERSONALIZED CAREER GUIDANCE', reportTitle: 'Your Career', reportTitleEm: 'Roadmap',
     reportIntro: 'A clear starting point for your education and skills journey.', profile: 'INTEREST PROFILE',
     personality: 'Your Personality Profile', recommendations: 'Two Paths to Explore', reasoning: 'Why These Recommendations Fit',
@@ -145,6 +146,7 @@ const COPY = {
     english: 'English', romanUrdu: 'Urdu', other: 'Koi aur', otherPlaceholder: 'Apni taleemi qabliyat likhein', continue: 'Jari Rakhein', cancel: 'Wapas',
     chooseBoth: 'Jari rakhne ke liye qualification aur zaban dono select karein.', otherRequired: 'Apni taleemi qabliyat likhna zaroori hai.',
     consultationError: 'Career report tayyar nahi ho saki. Dobara koshish karein ya Skill Craft Institute se rabta karein.',
+    fallbackNotice: 'Gemini filhal dastiyab nahi, is liye yeh report aap ke jawabat ki bunyaad par tayyar ki gayi hai.',
     reportEyebrow: 'AAP KI ZAATI CAREER GUIDANCE', reportTitle: 'Aap ka Career', reportTitleEm: 'Roadmap',
     reportIntro: 'Taleem aur skills ke safar ke liye aik wazeh shuruat.', profile: 'DILCHASPI KA PROFILE',
     personality: 'Aap ki Shakhsiyati Salahiyatein', recommendations: 'Aap ke Liye Do Raaste', reasoning: 'Yeh Mashwaray Aap ke Liye Kyun Munasib Hain',
@@ -431,6 +433,7 @@ function App() {
         ) : (
           
           <div className="report-page">
+            {result.roadmap?.is_fallback && <div className="report-fallback-notice" role="status">{t.fallbackNotice}</div>}
             <div className="report-toolbar">
               <button type="button" className="report-download" onClick={downloadReportPdf}>
                 <Download size={18} /> Download Report as PDF
