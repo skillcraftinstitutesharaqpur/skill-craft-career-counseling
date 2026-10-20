@@ -1,0 +1,37 @@
+How to Setup and Run This Project (Student Guide)
+Prerequisites (Zaroori Cheezain)
+Ensure karein ke aapke system mein Python (v3.10+) aur Node.js (v20.19+ ya v22.12+) pehle se installed hon.
+Step 1: Backend Setup
+Apne system par terminal open karein aur backend folder ke andar chale jayein:
+
+cd backend
+
+Python ki Virtual Environment create karein aur use activate karein:
+
+python -m venv venv
+# Activation for Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+
+Saari backend dependencies ko automatic install karne ke liye yeh command run karein:
+
+pip install -r requirements.txt
+
+Folder mein mojud .env.example file ka naam badal kar .env rakhein aur usme apni Gemini API key paste karein:
+
+Backend server ko launch karein:
+python -m uvicorn app.main:app --reload
+
+Step 2: Frontend Setup
+Ek naya terminal tab open karein aur frontend folder ke andar step-in karein:
+
+cd frontend
+
+Saare UI packages aur Tailwind CSS ko automatically fetch karne ke liye yeh command run karein:
+
+npm install --registry=https://registry.npmmirror.com
+
+Frontend application ko local engine par run karein:
+npm run dev
+
+Step 3: Access the Portal
+Ab apne browser mein http://localhost:5173/ open karein aur apna complete dynamic RIASEC assessment test run karein!
