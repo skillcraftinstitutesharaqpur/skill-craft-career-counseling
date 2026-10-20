@@ -27,6 +27,11 @@ frontend_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=frontend_origins,
+    # Vercel assigns deployment-specific URLs in addition to the stable
+    # production domain. Allow only this frontend project/team's preview URLs
+    # so its browser requests can pass CORS preflight without opening the API
+    # to arbitrary origins.
+    allow_origin_regex=r"^https://skill-craft-career-counseling-[a-z0-9-]+-skillcraft3\.vercel\.app$",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
